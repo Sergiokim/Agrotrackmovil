@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Agrotrackmovil</string>
+    <string name="empty_plants_message">El usuario no tiene plantas registradas</string>
+    <string name="label_add_plant">Agregar Nueva Planta</string>
+    <string name="label_name">Nombre</string>
+    <string name="hint_name">e.g., Rosa</string>
+    <string name="label_scientific_name">Nombre Científico</string>
+    <string name="hint_scientific_name">e.g., Rosa spp.</string>
+    <string name="label_latitude">Latitud</string>
+    <string name="hint_latitude">e.g., 17.9798016</string>
+    <string name="label_longitude">Longitud</string>
+    <string name="hint_longitude">e.g., -92.8186368</string>
+    <string name="label_care">Cuidados</string>
+    <string name="hint_care">e.g., Riego moderado</string>
+    <string name="button_save_plant">Guardar Planta</string>
+    <string name="button_cancel">Cancelar</string>
+</resources>

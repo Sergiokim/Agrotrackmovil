@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="LoginCard">
+        <item name="android:maxWidth">448dp</item>
+        <item name="android:background">@drawable/card_background</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="HeroSection">
+        <item name="android:background">@drawable/hero_gradient</item>
+        <item name="android:padding">32dp</item>
+    </style>
+
+    <style name="HeroTitle">
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="HeroSubtitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:alpha">0.9</item>
+    </style>
+
+    <style name="LoginForm">
+        <item name="android:layout_marginTop">24dp</item>
+    </style>
+
+    <style name="InputGroup">
+        <item name="android:layout_marginBottom">24dp</item>
+    </style>
+
+    <style name="InputLabel">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <style name="InputField">
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/input_background</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ErrorMessage">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/error</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="SubmitButton">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/button_background</item>
+    </style>
+
+    <style name="RegisterLink">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <!-- Custom Button Style to Avoid Material Defaults -->
+    <style name="Widget.App.Button" parent="android:Widget">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:backgroundTint">@null</item> <!-- Disable tint -->
+    </style>
+    <!-- New for Register -->
+    <style name="RegisterCard">
+        <item name="android:maxWidth">448dp</item>
+        <item name="android:background">@drawable/card_background</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="RegisterHeader">
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="RegisterHeaderTitle">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <style name="RegisterForm">
+        <item name="android:layout_marginTop">24dp</item>
+    </style>
+
+    <style name="LoginLink">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
+    <!-- Dashboard Styles -->
+    <style name="DashboardHero">
+        <item name="android:padding">40dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="DashboardHeader">
+        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="ButtonGroup">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:gravity">end</item>
+    </style>
+
+    <style name="ButtonSecondary">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/logout_button_background</item>
+    </style>
+
+    <style name="EmptyCard">
+        <item name="android:padding">32dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- New for EditPlant -->
+    <style name="EditPlantTitle">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
+    <!-- New for Plant Card -->
+    <style name="PlantCardTitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <style name="PlantCardSubtitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="PlantCardDetail">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/common_google_signin_btn_text_dark</item>
+    </style>
+</resources>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".AddPlantActivity">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Hero Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:background="@drawable/hero_gradient"
+                android:gravity="center"
+                android:elevation="4dp">
+
+                <TextView
+                    android:id="@+id/hero_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_add_plant"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:contentDescription="Título de agregar nueva planta" />
+            </LinearLayout>
+
+            <!-- Form Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Nombre Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_name"
+                        style="@style/InputLabel" />
+
+                    <EditText
+                        android:id="@+id/nombre_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:hint="@string/hint_name"
+                        android:inputType="text"
+                        android:maxLength="50"
+                        android:background="@drawable/input_background"
+                        android:padding="12dp"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="Campo para ingresar el nombre de la planta" />
+
+                    <!-- Nombre Científico Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_scientific_name"
+                        style="@style/InputLabel" />
+
+                    <EditText
+                        android:id="@+id/nombre_cientifico_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:hint="@string/hint_scientific_name"
+                        android:inputType="text"
+                        android:maxLength="100"
+                        android:background="@drawable/input_background"
+                        android:padding="12dp"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="Campo para ingresar el nombre científico de la planta" />
+
+                    <!-- Coordenadas Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2"
+                        android:layout_marginBottom="16dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_latitude"
+                                style="@style/InputLabel" />
+
+                            <EditText
+                                android:id="@+id/lat_input"
+                                android:layout_width="match_parent"
+                                android:layout_height="63dp"
+                                android:background="@drawable/input_background"
+                                android:contentDescription="Campo para ingresar la latitud"
+                                android:hint="@string/hint_latitude"
+                                android:inputType="numberDecimal|numberSigned"
+                                android:minHeight="48dp"
+                                android:padding="12dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_longitude"
+                                style="@style/InputLabel" />
+
+                            <EditText
+                                android:id="@+id/lon_input"
+                                android:layout_width="match_parent"
+                                android:layout_height="70dp"
+                                android:background="@drawable/input_background"
+                                android:contentDescription="Campo para ingresar la longitud"
+                                android:hint="@string/hint_longitude"
+                                android:inputType="numberDecimal|numberSigned"
+                                android:minHeight="48dp"
+                                android:padding="12dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Cuidados Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_care"
+                        style="@style/InputLabel" />
+
+                    <!-- Error Message -->
+                    <TextView
+                        android:id="@+id/error_message"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/error"
+                        android:visibility="gone"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="Mensaje de error" />
+
+                    <!-- Buttons Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <Button
+                            android:id="@+id/submit_button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="@string/button_save_plant"
+                            android:background="@drawable/button_background"
+                            android:textColor="@android:color/white"
+                            app:backgroundTint="@null"
+                            android:minHeight="48dp"
+                            android:contentDescription="Botón para guardar la planta" />
+
+                        <Button
+                            android:id="@+id/cancel_button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/button_cancel"
+                            android:background="@drawable/cancel_button_background"
+                            app:backgroundTint="@null"
+                            android:textColor="@android:color/white"
+                            android:minHeight="48dp"
+                            android:contentDescription="Botón para cancelar" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Loading Spinner -->
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

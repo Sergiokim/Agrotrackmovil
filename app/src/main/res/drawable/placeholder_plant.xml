@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Fondo gris -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#CCCCCC" />
+            <size
+                android:width="100dp"
+                android:height="100dp" />
+        </shape>
+    </item>
+    <!-- Ícono de planta (usando un vector o texto) -->
+    <item
+        android:drawable="@android:drawable/ic_menu_crop"
+        android:gravity="center" />
+</layer-list>
