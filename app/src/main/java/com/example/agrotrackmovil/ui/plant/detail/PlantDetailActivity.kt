@@ -251,30 +251,38 @@ class PlantDetailActivity : AppCompatActivity() {
         }
 
         Log.d("PlantDetailActivity", "Fetching climate data from Open-Meteo for lat=$lat, lon=$lon")
-        RetrofitClient.openMeteoApi.getCurrentWeather(lat, lon).enqueue(object :
-            Callback<OpenMeteoResponse> {
-            override fun onResponse(call: Call<OpenMeteoResponse>, response: Response<OpenMeteoResponse>) {
-                if (response.isSuccessful && response.body()?.current != null) {
-                    val current = response.body()!!.current!!
-                    val datosClima = mapOf(
-                        "temperature" to current.temperature_2m.toString(),
-                        "humidity" to current.relative_humidity_2m.toString()
-                    )
-                    Log.d("PlantDetailActivity", "Climate data fetched: $datosClima")
-                    displayPlantData(plant, datosClima)
-                } else {
-                    Log.e("PlantDetailActivity", "Open-Meteo response failed: ${response.code()} - ${response.message()}")
-                    displayPlantData(plant, null)
+        RetrofitClient.openMeteoApi.getCurrentWeather(lat, lon)
+            .enqueue(object : Callback<OpenMeteoResponse> {
+                override fun onResponse(call: Call<OpenMeteoResponse>, response: Response<OpenMeteoResponse>) {
+                    when (response.code()) {
+                        200 -> {
+                            val current = response.body()?.current
+                            if (current != null) {
+                                val datosClima = mapOf(
+                                    "temperature" to current.temperature_2m.toString(),
+                                    "humidity" to current.relative_humidity_2m.toString(),
+                                    "precipitation" to current.precipitation.toString()
+                                )
+                                displayPlantData(plant, datosClima)
+                            } else {
+                                Toast.makeText(this@PlantDetailActivity, "No hay datos climáticos", Toast.LENGTH_SHORT).show()
+                                displayPlantData(plant, null)
+                            }
+                        }
+                        401 -> showError("Error 401: No autorizado.")
+                        404 -> showError("Error 404: Recurso no encontrado.")
+                        500 -> showError("Error 500: Problema del servidor.")
+                        else -> showError("Error HTTP ${response.code()}: ${response.message()}")
+                    }
+                    setLoading(false)
                 }
-                setLoading(false)
-            }
 
-            override fun onFailure(call: Call<OpenMeteoResponse>, t: Throwable) {
-                Log.e("PlantDetailActivity", "Open-Meteo request failed: ${t.message}", t)
-                displayPlantData(plant, null)
-                setLoading(false)
-            }
-        })
+                override fun onFailure(call: Call<OpenMeteoResponse>, t: Throwable) {
+                    showError("Error de conexión: ${t.localizedMessage}")
+                    displayPlantData(plant, null)
+                    setLoading(false)
+                }
+            })
     }
 
     private fun displayPlantData(plant: Plant, datosClima: Map<String, String>?, imageWidthDp: Int = 500, imageHeightDp: Int = 400) {

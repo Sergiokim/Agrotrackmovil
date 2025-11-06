@@ -13,14 +13,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.agrotrackmovil.ui.main.MainActivity
-import com.example.agrotrackmovil.ui.list.PlantAdapter
-import com.example.agrotrackmovil.ui.plant.detail.PlantDetailActivity
 import com.example.agrotrackmovil.R
+import com.example.agrotrackmovil.data.remote.ApiClient
+import com.example.agrotrackmovil.data.remote.UnsplashResponse
+import com.example.agrotrackmovil.domain.model.Plant
+import com.example.agrotrackmovil.ui.list.PlantAdapter
+import com.example.agrotrackmovil.ui.main.MainActivity
+import com.example.agrotrackmovil.ui.plant.detail.PlantDetailActivity
+import com.example.agrotrackmovil.ui.plant.edit.AddPlantActivity
 import com.google.android.gms.wearable.Wearable
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.agrotrackmovil.domain.model.Plant
-import com.example.agrotrackmovil.ui.plant.edit.AddPlantActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -109,44 +114,7 @@ class DashboardActivity : AppCompatActivity() {
         Log.d(TAG, "Sesión de usuario verificada: $savedUserId")
 
         // Cargar plantas desde Firestore
-        progressBar.visibility = View.VISIBLE
-        errorTextView.visibility = View.GONE
-        emptyTextView.visibility = View.GONE
-        recyclerView.visibility = View.GONE
-
-        db.collection("plantas")
-            .whereEqualTo("userId", savedUserId)
-            .get()
-            .addOnSuccessListener { documents ->
-                try {
-                    documents.forEach { doc ->
-                        Log.d(TAG, "Datos del documento: ${doc.data}")
-                    }
-                    val plants = documents.map { it.toObject(Plant::class.java).apply { id = it.id } }
-                    Log.d(TAG, "Plantas cargadas: ${plants.size}")
-                    progressBar.visibility = View.GONE
-                    if (plants.isEmpty()) {
-                        emptyTextView.text = "El usuario no tiene plantas registradas"
-                        emptyTextView.visibility = View.VISIBLE
-                        recyclerView.visibility = View.GONE
-                    } else {
-                        plantAdapter.setPlants(plants)
-                        recyclerView.visibility = View.VISIBLE
-                        emptyTextView.visibility = View.GONE
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error al mapear plantas: ${e.message}", e)
-                    progressBar.visibility = View.GONE
-                    errorTextView.text = "Error al cargar plantas: ${e.message}"
-                    errorTextView.visibility = View.VISIBLE
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Consulta a Firestore fallida: ${exception.message}", exception)
-                progressBar.visibility = View.GONE
-                errorTextView.text = "Error al cargar plantas: ${exception.message}"
-                errorTextView.visibility = View.VISIBLE
-            }
+        loadPlantsFromFirestore(savedUserId)
 
         // Botón de agregar planta
         val addPlantButton = findViewById<Button>(R.id.addPlantButton)
@@ -175,77 +143,116 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
-        // Simular conexión con Wear OS
-        wearConnectButton.setOnClickListener {
-            Log.d(WEAR_TAG, "Botón de conexión a Wear OS clicado")
-            Toast.makeText(this, "Conectando a Wear OS...", Toast.LENGTH_SHORT).show()
-            try {
-                val nodeClient = Wearable.getNodeClient(this)
-                nodeClient.connectedNodes.addOnCompleteListener { task ->
-                    if (task.isSuccessful && !task.result.isEmpty()) {
-                        Log.d(WEAR_TAG, "Nodos Wear OS encontrados: ${task.result.size}")
-                        Toast.makeText(this, "Wear OS conectado", Toast.LENGTH_SHORT).show()
+        // Botones de Wear OS
+        setupWearOSButtons(savedUserId)
+
+        // 🔹 NUEVO: Cargar fotos desde Unsplash con manejo HTTP
+        loadUnsplashPhotos("plants")
+    }
+
+    private fun loadPlantsFromFirestore(savedUserId: String) {
+        progressBar.visibility = View.VISIBLE
+        errorTextView.visibility = View.GONE
+        emptyTextView.visibility = View.GONE
+        recyclerView.visibility = View.GONE
+
+        db.collection("plantas")
+            .whereEqualTo("userId", savedUserId)
+            .get()
+            .addOnSuccessListener { documents ->
+                try {
+                    val plants = documents.map { it.toObject(Plant::class.java).apply { id = it.id } }
+                    progressBar.visibility = View.GONE
+                    if (plants.isEmpty()) {
+                        emptyTextView.text = "El usuario no tiene plantas registradas"
+                        emptyTextView.visibility = View.VISIBLE
                     } else {
-                        Log.e(WEAR_TAG, "No se encontraron nodos Wear OS")
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            Log.e(WEAR_TAG, "Conexión con Wear OS fallida: Error interno")
-                            Toast.makeText(this, "No fue posible conectar a Wear OS debido a un error interno", Toast.LENGTH_LONG).show()
-                        }, 2000)
+                        plantAdapter.setPlants(plants)
+                        recyclerView.visibility = View.VISIBLE
                     }
-                }.addOnFailureListener { e ->
-                    Log.e(WEAR_TAG, "Error al intentar conectar con Wear OS: ${e.message}", e)
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        Log.e(WEAR_TAG, "Conexión con Wear OS fallida: Error interno")
-                        Toast.makeText(this, "No fue posible conectar a Wear OS debido a un error interno", Toast.LENGTH_LONG).show()
-                    }, 2000)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error al mapear plantas: ${e.message}", e)
+                    progressBar.visibility = View.GONE
+                    errorTextView.text = "Error al cargar plantas: ${e.message}"
+                    errorTextView.visibility = View.VISIBLE
                 }
-            } catch (e: Exception) {
-                Log.e(WEAR_TAG, "Error inesperado al intentar conectar con Wear OS: ${e.message}", e)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    Log.e(WEAR_TAG, "Conexión con Wear OS fallida: Error interno")
-                    Toast.makeText(this, "No fue posible conectar a Wear OS debido a un error interno", Toast.LENGTH_LONG).show()
-                }, 2000)
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Consulta a Firestore fallida: ${exception.message}", exception)
+                progressBar.visibility = View.GONE
+                errorTextView.text = "Error al cargar plantas: ${exception.message}"
+                errorTextView.visibility = View.VISIBLE
+            }
+    }
+
+    private fun setupWearOSButtons(savedUserId: String?) {
+        wearConnectButton.setOnClickListener {
+            Toast.makeText(this, "Conectando a Wear OS...", Toast.LENGTH_SHORT).show()
+            val nodeClient = Wearable.getNodeClient(this)
+            nodeClient.connectedNodes.addOnCompleteListener { task ->
+                if (task.isSuccessful && !task.result.isEmpty()) {
+                    Toast.makeText(this, "Wear OS conectado", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "No se encontraron dispositivos Wear OS", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener {
+                Toast.makeText(this, "Error al conectar con Wear OS", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Simular sincronización de datos con Wear OS
         wearSyncButton.setOnClickListener {
-            Log.d(WEAR_TAG, "Botón de sincronización con Wear OS clicado")
             if (savedUserId == null) {
-                Log.e(WEAR_TAG, "Sincronización con Wear OS fallida: No se encontró sesión de usuario")
-                Toast.makeText(this, "Error: Inicia sesión para sincronizar con Wear OS", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Inicia sesión para sincronizar", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             Toast.makeText(this, "Sincronizando datos con Wear OS...", Toast.LENGTH_SHORT).show()
-            try {
-                db.collection("plantas").whereEqualTo("userId", savedUserId).get()
-                    .addOnSuccessListener { documents ->
-                        if (!documents.isEmpty) {
-                            Log.d(WEAR_TAG, "Sincronización simulada con Wear OS: Datos de plantas obtenidos para userId=$savedUserId")
-                            Toast.makeText(this, "Datos de plantas sincronizados con Wear OS", Toast.LENGTH_SHORT).show()
+            db.collection("plantas").whereEqualTo("userId", savedUserId).get()
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Datos sincronizados con Wear OS", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Error al sincronizar con Wear OS", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+
+    private fun loadUnsplashPhotos(query: String) {
+        val call = ApiClient.unsplashApiService.searchPhotos(ApiClient.getUnsplashApiKey(), query)
+
+        call.enqueue(object : Callback<UnsplashResponse> {
+            override fun onResponse(call: Call<UnsplashResponse>, response: Response<UnsplashResponse>) {
+                when (response.code()) {
+                    200 -> {
+                        val photos = response.body()?.results
+                        if (!photos.isNullOrEmpty()) {
+                            Log.d("UnsplashAPI", "Fotos obtenidas: ${photos.size}")
+                            Toast.makeText(this@DashboardActivity, "Fotos cargadas exitosamente", Toast.LENGTH_SHORT).show()
                         } else {
-                            Log.e(WEAR_TAG, "Sincronización simulada con Wear OS fallida: No se encontraron plantas")
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                Log.e(WEAR_TAG, "Sincronización con Wear OS fallida: Error interno")
-                                Toast.makeText(this, "No fue posible sincronizar con Wear OS debido a un error interno", Toast.LENGTH_LONG).show()
-                            }, 1500)
+                            Log.w("UnsplashAPI", "Respuesta 200 pero sin resultados")
+                            Toast.makeText(this@DashboardActivity, "No se encontraron fotos", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    .addOnFailureListener { e ->
-                        Log.e(WEAR_TAG, "Error al intentar sincronizar con Wear OS: ${e.message}", e)
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            Log.e(WEAR_TAG, "Sincronización con Wear OS fallida: Error interno")
-                            Toast.makeText(this, "No fue posible sincronizar con Wear OS debido a un error interno", Toast.LENGTH_LONG).show()
-                        }, 1500)
+                    401 -> {
+                        Log.e("UnsplashAPI", "Error 401: No autorizado")
+                        Toast.makeText(this@DashboardActivity, "Error: No autorizado (401)", Toast.LENGTH_SHORT).show()
                     }
-            } catch (e: Exception) {
-                Log.e(WEAR_TAG, "Error inesperado en sincronización simulada: ${e.message}", e)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    Log.e(WEAR_TAG, "Sincronización con Wear OS fallida: Error interno")
-                    Toast.makeText(this, "No fue posible sincronizar con Wear OS debido a un error interno", Toast.LENGTH_LONG).show()
-                }, 1500)
+                    404 -> {
+                        Log.e("UnsplashAPI", "Error 404: No encontrado")
+                        Toast.makeText(this@DashboardActivity, "Error: No encontrado (404)", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Log.e("UnsplashAPI", "Error ${response.code()}: ${response.message()}")
+                        Toast.makeText(this@DashboardActivity, "Error HTTP ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-        }
+
+            override fun onFailure(call: Call<UnsplashResponse>, t: Throwable) {
+                Log.e("UnsplashAPI", "Error de red o conexión: ${t.message}", t)
+                Toast.makeText(this@DashboardActivity, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
