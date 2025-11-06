@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:padding="16dp"
     android:background="@color/background"
-    tools:context=".PlantDetailActivity">
+    tools:context=".ui.plant.detail.PlantDetailActivity">
 
     <!-- Hero Section -->
     <LinearLayout

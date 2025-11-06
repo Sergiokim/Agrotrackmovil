@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.plant.edit
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,9 +10,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.agrotrackmovil.ui.plant.detail.PlantDetailActivity
+import com.example.agrotrackmovil.R
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.agrotrackmovil.domain.model.Plant
+import com.example.agrotrackmovil.ui.dashboard.DashboardActivity
 
 class EditPlantActivity : AppCompatActivity() {
 

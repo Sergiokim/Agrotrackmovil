@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.dashboard
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,8 +13,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.agrotrackmovil.ui.main.MainActivity
+import com.example.agrotrackmovil.ui.list.PlantAdapter
+import com.example.agrotrackmovil.ui.plant.detail.PlantDetailActivity
+import com.example.agrotrackmovil.R
 import com.google.android.gms.wearable.Wearable
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.agrotrackmovil.domain.model.Plant
+import com.example.agrotrackmovil.ui.plant.edit.AddPlantActivity
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -80,7 +86,11 @@ class DashboardActivity : AppCompatActivity() {
                 Log.d(TAG, "Navegado a PlantDetailActivity para planta ID: $plantId")
             } catch (e: Exception) {
                 Log.e(TAG, "Error al navegar a PlantDetailActivity: ${e.message}", e)
-                Toast.makeText(this, "Error al abrir detalle de planta: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Error al abrir detalle de planta: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         recyclerView.layoutManager = LinearLayoutManager(this)

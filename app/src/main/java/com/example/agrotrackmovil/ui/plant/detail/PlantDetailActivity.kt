@@ -1,9 +1,8 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.plant.detail
 
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -14,15 +13,24 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
+import com.example.agrotrackmovil.R
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.agrotrackmovil.data.remote.OpenMeteoResponse
+import com.example.agrotrackmovil.data.remote.RetrofitClient
+import com.example.agrotrackmovil.domain.model.Plant
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.agrotrackmovil.ui.dashboard.DashboardActivity
+import com.example.agrotrackmovil.ui.main.MainActivity
+import com.example.agrotrackmovil.ui.plant.edit.AddPlantActivity
+import com.example.agrotrackmovil.ui.plant.edit.EditPlantActivity
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class PlantDetailActivity : AppCompatActivity() {
 
@@ -35,7 +43,7 @@ class PlantDetailActivity : AppCompatActivity() {
     private lateinit var temperature: TextView
     private lateinit var humidity: TextView
     private lateinit var precipitation: TextView
-    private lateinit var climateCard: androidx.cardview.widget.CardView
+    private lateinit var climateCard: CardView
     private lateinit var noClimateData: TextView
     private lateinit var loadingSpinner: ProgressBar
     private lateinit var errorMessage: TextView
@@ -44,7 +52,7 @@ class PlantDetailActivity : AppCompatActivity() {
     private lateinit var addPlantButton: Button
     private lateinit var deleteButton: Button
     private lateinit var editButton: Button
-    private lateinit var planta_card: androidx.cardview.widget.CardView
+    private lateinit var planta_card: CardView
     private lateinit var prefs: SharedPreferences
     private lateinit var db: FirebaseFirestore
 
@@ -243,7 +251,8 @@ class PlantDetailActivity : AppCompatActivity() {
         }
 
         Log.d("PlantDetailActivity", "Fetching climate data from Open-Meteo for lat=$lat, lon=$lon")
-        RetrofitClient.openMeteoApi.getCurrentWeather(lat, lon).enqueue(object : Callback<OpenMeteoResponse> {
+        RetrofitClient.openMeteoApi.getCurrentWeather(lat, lon).enqueue(object :
+            Callback<OpenMeteoResponse> {
             override fun onResponse(call: Call<OpenMeteoResponse>, response: Response<OpenMeteoResponse>) {
                 if (response.isSuccessful && response.body()?.current != null) {
                     val current = response.body()!!.current!!

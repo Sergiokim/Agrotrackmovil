@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.domain.model
 import java.io.Serializable
 
 data class Plant(

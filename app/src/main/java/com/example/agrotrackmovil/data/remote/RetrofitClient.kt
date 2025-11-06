@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

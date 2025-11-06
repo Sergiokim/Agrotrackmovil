@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.plant.edit
 
 import android.Manifest
 import android.content.Intent
@@ -18,12 +18,20 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.agrotrackmovil.ui.dashboard.DashboardActivity
+import com.example.agrotrackmovil.ui.main.MainActivity
+import com.example.agrotrackmovil.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.firestore.FirebaseFirestore
+import com.example.agrotrackmovil.data.remote.ApiClient
+import com.example.agrotrackmovil.data.remote.UnsplashResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AddPlantActivity : AppCompatActivity() {
 
@@ -172,7 +180,9 @@ class AddPlantActivity : AppCompatActivity() {
                 "lon" to lon,
                 "imagen" to (imageUrl ?: null), // Guardar la URL de la imagen o null si no se encontró
                 "userId" to userId,
-                "createdAt" to java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                "createdAt" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).format(
+                    Date()
+                )
             )
 
             // Guardar en Firestore

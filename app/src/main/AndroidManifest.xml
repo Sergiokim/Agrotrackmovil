@@ -17,28 +17,28 @@
         android:theme="@style/Theme.Agrotrackmovil"
         tools:targetApi="31">
         <activity
-            android:name=".EditPlantActivity"
+            android:name=".ui.plant.edit.EditPlantActivity"
             android:exported="false" />
         <activity
-            android:name=".PlantDetailActivity"
+            android:name=".ui.plant.detail.PlantDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".AddPlantActivity"
+            android:name=".ui.plant.edit.AddPlantActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
+            android:name=".ui.plant.detail.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".ui.auth.ForgotPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".ui.auth.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".DashboardActivity"
+            android:name=".ui.dashboard.DashboardActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

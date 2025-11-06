@@ -1,9 +1,11 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.auth
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.widget.Button
 import android.widget.EditText
@@ -14,7 +16,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import at.favre.lib.crypto.bcrypt.BCrypt
+import com.example.agrotrackmovil.R
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.agrotrackmovil.ui.main.MainActivity
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -48,8 +52,8 @@ class RegisterActivity : AppCompatActivity() {
         val spannableString = SpannableString(fullText)
         val startIndex = fullText.indexOf("Inicia sesión")
         val endIndex = startIndex + "Inicia sesión".length
-        spannableString.setSpan(StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, 0)
-        spannableString.setSpan(android.text.style.ForegroundColorSpan(getColor(R.color.primary)), startIndex, endIndex, 0)
+        spannableString.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, 0)
+        spannableString.setSpan(ForegroundColorSpan(getColor(R.color.primary)), startIndex, endIndex, 0)
         loginTextView.text = spannableString
 
         // Navigation for login link

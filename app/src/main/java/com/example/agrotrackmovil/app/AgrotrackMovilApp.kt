@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.app
 
 import android.app.Application
 import android.util.Log

@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.list
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.agrotrackmovil.R
+import com.example.agrotrackmovil.domain.model.Plant
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

@@ -1,4 +1,4 @@
-package com.example.agrotrackmovil
+package com.example.agrotrackmovil.ui.main
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -13,7 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import at.favre.lib.crypto.bcrypt.BCrypt
+import com.example.agrotrackmovil.R
+import com.example.agrotrackmovil.ui.auth.RegisterActivity
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.agrotrackmovil.ui.dashboard.DashboardActivity
 
 class MainActivity : AppCompatActivity() {
 
