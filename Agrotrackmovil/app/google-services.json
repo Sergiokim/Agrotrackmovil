@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "493008873420",
+    "project_id": "plantas-uwu",
+    "storage_bucket": "plantas-uwu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493008873420:android:98913d72e72b105bde5f69",
+        "android_client_info": {
+          "package_name": "com.example.agrotrackmovil"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "493008873420-rou3gro7q8pgcmrkuv859rp5aiumit08.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcAXtuR1GD5njpwT0JFSpJk6yh87y0H3I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "493008873420-rou3gro7q8pgcmrkuv859rp5aiumit08.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

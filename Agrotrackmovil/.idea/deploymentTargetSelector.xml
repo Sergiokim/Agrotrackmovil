@@ -5,16 +5,16 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Agrotrackmovil.app.main">
+      <SelectionState runConfigName="app.unitTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Agrotrackmovil.app.unitTest">
+      <SelectionState runConfigName="app.androidTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Agrotrackmovil.app.androidTest">
+      <SelectionState runConfigName="AndroidStudioProjects.Agrotrackmovil.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Agrotrackmovil.Agrotrackmovil.app">
+      <SelectionState runConfigName="app.main">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
