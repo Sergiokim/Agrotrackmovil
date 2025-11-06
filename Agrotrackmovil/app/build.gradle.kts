@@ -20,6 +20,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android") version "2.52" apply false
     id("org.jetbrains.kotlin.kapt")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
 }
 
 android {
@@ -39,6 +40,11 @@ android {
 
 buildFeatures {
         buildConfig = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
 
     buildTypes {
@@ -82,6 +88,28 @@ dependencies {
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
     implementation("com.google.android.gms:play-services-wearable:18.2.0")
+
+    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation("androidx.compose.ui:ui:1.7.3")
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.3")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.7.3")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    // Jetpack Compose
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.3") // 👈 para usar Icons.Default.*
+
+    // Activity Compose
+    implementation("androidx.activity:activity-compose:1.9.2")
+
+    // UI base y tooling
+    implementation("androidx.compose.ui:ui:1.7.3")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.3")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.7.3")
+
+    // Coil para cargar imágenes
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

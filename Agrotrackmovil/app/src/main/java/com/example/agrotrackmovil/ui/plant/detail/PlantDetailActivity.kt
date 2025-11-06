@@ -3,349 +3,283 @@ package com.example.agrotrackmovil.ui.plant.detail
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.bumptech.glide.Glide
-import com.example.agrotrackmovil.R
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.agrotrackmovil.data.remote.OpenMeteoResponse
 import com.example.agrotrackmovil.data.remote.RetrofitClient
 import com.example.agrotrackmovil.domain.model.Plant
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import com.example.agrotrackmovil.ui.dashboard.DashboardActivity
 import com.example.agrotrackmovil.ui.main.MainActivity
 import com.example.agrotrackmovil.ui.plant.edit.AddPlantActivity
 import com.example.agrotrackmovil.ui.plant.edit.EditPlantActivity
+import com.google.firebase.firestore.FirebaseFirestore
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlantDetailActivity : AppCompatActivity() {
+class PlantDetailActivity : ComponentActivity() {
 
-    private lateinit var heroTitle: TextView
-    private lateinit var plantaImage: ImageView
-    private lateinit var nombreCientifico: TextView
-    private lateinit var cuidados: TextView
-    private lateinit var coordenadas: TextView
-    private lateinit var fechaCreacion: TextView
-    private lateinit var temperature: TextView
-    private lateinit var humidity: TextView
-    private lateinit var precipitation: TextView
-    private lateinit var climateCard: CardView
-    private lateinit var noClimateData: TextView
-    private lateinit var loadingSpinner: ProgressBar
-    private lateinit var errorMessage: TextView
-    private lateinit var notFoundMessage: TextView
-    private lateinit var backButton: Button
-    private lateinit var addPlantButton: Button
-    private lateinit var deleteButton: Button
-    private lateinit var editButton: Button
-    private lateinit var planta_card: CardView
     private lateinit var prefs: SharedPreferences
     private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_plant_detail)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        try {
-            heroTitle = findViewById(R.id.hero_title)
-            plantaImage = findViewById(R.id.planta_image)
-            nombreCientifico = findViewById(R.id.nombre_cientifico)
-            coordenadas = findViewById(R.id.coordenadas)
-            fechaCreacion = findViewById(R.id.fecha_creacion)
-            temperature = findViewById(R.id.temperature)
-            humidity = findViewById(R.id.humidity)
-            climateCard = findViewById(R.id.climate_card)
-            noClimateData = findViewById(R.id.no_climate_data)
-            loadingSpinner = findViewById(R.id.loading_spinner)
-            errorMessage = findViewById(R.id.error_message)
-            notFoundMessage = findViewById(R.id.not_found_message)
-            backButton = findViewById(R.id.back_button)
-            addPlantButton = findViewById(R.id.add_plant_button)
-            deleteButton = findViewById(R.id.delete_button)
-            editButton = findViewById(R.id.edit_button)
-            planta_card = findViewById(R.id.planta_card)
-        } catch (e: Exception) {
-            Log.e("PlantDetailActivity", "Error initializing views: ${e.message}", e)
-            Toast.makeText(this, "Error al cargar la interfaz", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
 
         prefs = getSharedPreferences("app_session", MODE_PRIVATE)
         db = FirebaseFirestore.getInstance()
 
         val savedUserId = prefs.getString("userId", null)
+        val plantId = intent.getStringExtra("PLANT_ID")
+
         if (savedUserId == null) {
-            Log.e("PlantDetailActivity", "No user session found")
             Toast.makeText(this, "Sesión no válida", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
         }
 
-        val plantId = intent.getStringExtra("PLANT_ID")
         if (plantId == null) {
-            Log.e("PlantDetailActivity", "No plantId provided")
-            showNotFound()
+            Toast.makeText(this, "Planta no encontrada", Toast.LENGTH_SHORT).show()
+            finish()
             return
         }
 
-        backButton.setOnClickListener {
-            startActivity(Intent(this, DashboardActivity::class.java))
-            Log.d("PlantDetailActivity", "Navigated to DashboardActivity")
-            finish()
-        }
-        addPlantButton.setOnClickListener {
-            startActivity(Intent(this, AddPlantActivity::class.java))
-            Log.d("PlantDetailActivity", "Navigated to AddPlantActivity")
-            finish()
-        }
-        deleteButton.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Eliminar Planta")
-                .setMessage("¿Estás seguro de que deseas eliminar esta planta?")
-                .setPositiveButton("Sí") { _, _ ->
-                    deletePlant(plantId, savedUserId)
-                }
-                .setNegativeButton("No") { _, _ ->
-                    Log.d("PlantDetailActivity", "Deletion canceled for plant ID: $plantId")
-                }
-                .setCancelable(true)
-                .show()
-        }
-        editButton.setOnClickListener {
-            db.collection("plantas").document(plantId).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val plant = document.toObject(Plant::class.java)?.apply { id = document.id }
-                        if (plant != null && plant.userId == savedUserId) {
-                            val intent = Intent(this, EditPlantActivity::class.java).apply {
-                                putExtra("PLANT_ID", plantId)
-                                putExtra("PLANT_DATA", plant)
-                            }
-                            startActivity(intent)
-                            Log.d("PlantDetailActivity", "Navigated to EditPlantActivity for plant ID: $plantId")
-                            finish()
-                        } else {
-                            Log.e("PlantDetailActivity", "Plant not found or does not belong to user")
-                            showNotFound()
+        setContent {
+            MaterialTheme {
+                PlantDetailScreen(
+                    db = db,
+                    plantId = plantId,
+                    userId = savedUserId,
+                    onBack = {
+                        startActivity(Intent(this, DashboardActivity::class.java))
+                        finish()
+                    },
+                    onAdd = {
+                        startActivity(Intent(this, AddPlantActivity::class.java))
+                        finish()
+                    },
+                    onEdit = { plant ->
+                        val intent = Intent(this, EditPlantActivity::class.java).apply {
+                            putExtra("PLANT_ID", plant.id)
+                            putExtra("PLANT_DATA", plant)
                         }
-                    } else {
-                        Log.e("PlantDetailActivity", "Document does not exist for plant ID: $plantId")
-                        showNotFound()
+                        startActivity(intent)
+                        finish()
+                    },
+                    onDelete = { id ->
+                        deletePlant(id, savedUserId)
                     }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("PlantDetailActivity", "Failed to fetch plant for editing: ${e.message}", e)
-                    Toast.makeText(this, "Error al cargar datos para editar", Toast.LENGTH_SHORT).show()
-                }
+                )
+            }
         }
-
-        loadPlantData(plantId, savedUserId)
     }
 
     private fun deletePlant(plantId: String, userId: String) {
-        setLoading(true)
         db.collection("plantas").document(plantId).get()
             .addOnSuccessListener { document ->
-                if (document.exists() && document.toObject(Plant::class.java)?.userId == userId) {
+                val plant = document.toObject(Plant::class.java)
+                if (document.exists() && plant?.userId == userId) {
                     db.collection("plantas").document(plantId).delete()
                         .addOnSuccessListener {
-                            Log.d("PlantDetailActivity", "Plant deleted: $plantId")
                             Toast.makeText(this, "Planta eliminada correctamente", Toast.LENGTH_SHORT).show()
                             startActivity(Intent(this, DashboardActivity::class.java))
                             finish()
                         }
-                        .addOnFailureListener { e ->
-                            Log.e("PlantDetailActivity", "Failed to delete plant: ${e.message}", e)
-                            Toast.makeText(this, "Error al eliminar la planta: ${e.message}", Toast.LENGTH_SHORT).show()
-                            setLoading(false)
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Error al eliminar: ${it.message}", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    Log.e("PlantDetailActivity", "Plant not found or does not belong to user")
-                    showNotFound()
-                    setLoading(false)
+                    Toast.makeText(this, "Planta no encontrada o no pertenece al usuario", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e("PlantDetailActivity", "Failed to verify plant for deletion: ${e.message}", e)
-                Toast.makeText(this, "Error al verificar la planta: ${e.message}", Toast.LENGTH_SHORT).show()
-                setLoading(false)
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al verificar la planta: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+}
 
-    private fun loadPlantData(plantId: String, userId: String) {
-        setLoading(true)
-        Log.d("PlantDetailActivity", "Starting query for plant ID: $plantId, User ID: $userId")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlantDetailScreen(
+    db: FirebaseFirestore,
+    plantId: String,
+    userId: String,
+    onBack: () -> Unit,
+    onAdd: () -> Unit,
+    onEdit: (Plant) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(true) }
+    var plant by remember { mutableStateOf<Plant?>(null) }
+    var climateData by remember { mutableStateOf<Map<String, String>?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Cargar datos de planta
+    LaunchedEffect(plantId) {
         db.collection("plantas").document(plantId).get()
             .addOnSuccessListener { document ->
-                try {
-                    if (document.exists()) {
-                        val plant = document.toObject(Plant::class.java)?.apply { id = document.id }
-                        if (plant != null && plant.userId == userId) {
-                            Log.d("PlantDetailActivity", "Plant found: ${document.data}")
-                            if (plant.lat != null && plant.lon != null) {
-                                fetchClimateData(plant, userId)
-                            } else {
-                                Log.w("PlantDetailActivity", "No coordinates for plant ${plant.id}: lat=${plant.lat}, lon=${plant.lon}")
-                                displayPlantData(plant, null)
-                                setLoading(false)
-                            }
-                        } else {
-                            Log.e("PlantDetailActivity", "Plant not found or does not belong to user")
-                            showNotFound()
-                            setLoading(false)
-                        }
-                    } else {
-                        Log.e("PlantDetailActivity", "Document does not exist for plant ID: $plantId")
-                        showNotFound()
-                        setLoading(false)
-                    }
-                } catch (e: Exception) {
-                    Log.e("PlantDetailActivity", "Error mapping plant data: ${e.message}", e)
-                    showError("Error al cargar los datos: ${e.message}")
-                    setLoading(false)
-                }
+                if (document.exists()) {
+                    val data = document.toObject(Plant::class.java)?.apply { id = document.id }
+                    if (data != null && data.userId == userId) {
+                        plant = data
+                        if (data.lat != null && data.lon != null)
+                            fetchClimateData(context, data) { result -> climateData = result }
+                    } else errorMessage = "Planta no encontrada o no pertenece al usuario"
+                } else errorMessage = "Documento no existe"
+                isLoading = false
             }
             .addOnFailureListener { e ->
-                Log.e("PlantDetailActivity", "Firestore query failed: ${e.message}", e)
-                showError("Error al cargar los datos: ${e.message}")
-                setLoading(false)
+                errorMessage = "Error al cargar datos: ${e.message}"
+                isLoading = false
             }
     }
 
-    private fun fetchClimateData(plant: Plant, userId: String) {
-        val lat = plant.lat?.toDoubleOrNull()
-        val lon = plant.lon?.toDoubleOrNull()
-        if (lat == null || lon == null || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-            Log.e("PlantDetailActivity", "Invalid coordinates: lat=${plant.lat}, lon=${plant.lon}")
-            displayPlantData(plant, null)
-            setLoading(false)
-            return
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Detalle de Planta") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                isLoading -> CircularProgressIndicator()
+                errorMessage != null -> Text(errorMessage ?: "Error desconocido", color = MaterialTheme.colorScheme.error)
+                plant != null -> PlantDetailContent(plant!!, climateData, onAdd, onEdit, onDelete)
+            }
+        }
+    }
+}
+
+@Composable
+fun PlantDetailContent(
+    plant: Plant,
+    datosClima: Map<String, String>?,
+    onAdd: () -> Unit,
+    onEdit: (Plant) -> Unit,
+    onDelete: (String) -> Unit
+) {
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(plant.nombre, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        AsyncImage(
+            model = plant.imagen,
+            contentDescription = "Imagen planta",
+            modifier = Modifier
+                .height(220.dp)
+                .fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        Text("Nombre científico: ${plant.nombreCientifico ?: "No disponible"}")
+        Text("Coordenadas: ${plant.lat ?: "?"}, ${plant.lon ?: "?"}")
+        Text("Fecha de creación: ${plant.createdAt?.let {
+            try {
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                    .parse(it)?.toLocaleString()
+            } catch (e: Exception) {
+                "No disponible"
+            }
+        } ?: "No disponible"}")
+
+        Spacer(Modifier.height(16.dp))
+
+        if (datosClima != null) {
+            Card(Modifier.fillMaxWidth().padding(8.dp)) {
+                Column(Modifier.padding(12.dp)) {
+                    Text("Clima actual:", fontWeight = FontWeight.Bold)
+                    Text("Temperatura: ${datosClima["temperature"]} °C")
+                    Text("Humedad: ${datosClima["humidity"]} %")
+                    Text("Precipitación: ${datosClima["precipitation"]} mm")
+                }
+            }
+        } else {
+            Text("No hay datos climáticos", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
-        Log.d("PlantDetailActivity", "Fetching climate data from Open-Meteo for lat=$lat, lon=$lon")
-        RetrofitClient.openMeteoApi.getCurrentWeather(lat, lon)
-            .enqueue(object : Callback<OpenMeteoResponse> {
-                override fun onResponse(call: Call<OpenMeteoResponse>, response: Response<OpenMeteoResponse>) {
-                    when (response.code()) {
-                        200 -> {
-                            val current = response.body()?.current
-                            if (current != null) {
-                                val datosClima = mapOf(
+        Spacer(Modifier.height(24.dp))
+
+        Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onAdd) { Text("Añadir Planta") }
+            Button(onClick = { onEdit(plant) }) { Text("Editar") }
+            Button(onClick = {
+                onDelete(plant.id ?: "")
+                Toast.makeText(context, "Eliminando planta...", Toast.LENGTH_SHORT).show()
+            }) { Text("Eliminar") }
+        }
+    }
+}
+
+private fun fetchClimateData(
+    context: android.content.Context,
+    plant: Plant,
+    callback: (Map<String, String>?) -> Unit
+) {
+    val lat = plant.lat?.toDoubleOrNull()
+    val lon = plant.lon?.toDoubleOrNull()
+    if (lat == null || lon == null) return callback(null)
+
+    RetrofitClient.openMeteoApi.getCurrentWeather(lat, lon)
+        .enqueue(object : Callback<OpenMeteoResponse> {
+            override fun onResponse(call: Call<OpenMeteoResponse>, response: Response<OpenMeteoResponse>) {
+                when (response.code()) {
+                    200 -> {
+                        val current = response.body()?.current
+                        if (current != null) {
+                            callback(
+                                mapOf(
                                     "temperature" to current.temperature_2m.toString(),
                                     "humidity" to current.relative_humidity_2m.toString(),
                                     "precipitation" to current.precipitation.toString()
                                 )
-                                displayPlantData(plant, datosClima)
-                            } else {
-                                Toast.makeText(this@PlantDetailActivity, "No hay datos climáticos", Toast.LENGTH_SHORT).show()
-                                displayPlantData(plant, null)
-                            }
-                        }
-                        401 -> showError("Error 401: No autorizado.")
-                        404 -> showError("Error 404: Recurso no encontrado.")
-                        500 -> showError("Error 500: Problema del servidor.")
-                        else -> showError("Error HTTP ${response.code()}: ${response.message()}")
+                            )
+                        } else callback(null)
                     }
-                    setLoading(false)
+                    400 -> Toast.makeText(context, "Error 400: Solicitud incorrecta", Toast.LENGTH_SHORT).show()
+                    401 -> Toast.makeText(context, "Error 401: No autorizado", Toast.LENGTH_SHORT).show()
+                    404 -> Toast.makeText(context, "Error 404: No encontrado", Toast.LENGTH_SHORT).show()
+                    500 -> Toast.makeText(context, "Error 500: Servidor", Toast.LENGTH_SHORT).show()
+                    else -> Toast.makeText(context, "Error HTTP ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
-
-                override fun onFailure(call: Call<OpenMeteoResponse>, t: Throwable) {
-                    showError("Error de conexión: ${t.localizedMessage}")
-                    displayPlantData(plant, null)
-                    setLoading(false)
-                }
-            })
-    }
-
-    private fun displayPlantData(plant: Plant, datosClima: Map<String, String>?, imageWidthDp: Int = 500, imageHeightDp: Int = 400) {
-        heroTitle.text = plant.nombre
-        nombreCientifico.text = "Nombre científico: ${plant.nombreCientifico ?: "No disponible"}"
-        coordenadas.text = "Coordenadas: Lat: ${plant.lat ?: "No disponible"}, Lon: ${plant.lon ?: "No disponible"}"
-        fechaCreacion.text = "Fecha de creación: ${
-            try {
-                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-                    .parse(plant.createdAt)?.toLocaleString() ?: "No disponible"
-            } catch (e: Exception) {
-                "No disponible"
             }
-        }"
 
-        val density = resources.displayMetrics.density
-        val imageWidthPx = (imageWidthDp * density).toInt()
-        val imageHeightPx = (imageHeightDp * density).toInt()
-
-        if (plant.imagen != null) {
-            plantaImage.visibility = View.VISIBLE
-            val layoutParams = plantaImage.layoutParams
-            layoutParams.width = imageWidthPx
-            layoutParams.height = imageHeightPx
-            plantaImage.layoutParams = layoutParams
-
-            Glide.with(this)
-                .load(plant.imagen)
-                .centerCrop()
-                .error(R.drawable.placeholder_plant)
-                .into(plantaImage)
-            Log.d("PlantDetailActivity", "Loading image: ${plant.imagen} with width=${imageWidthPx}px, height=${imageHeightPx}px")
-        } else {
-            plantaImage.visibility = View.GONE
-            Log.d("PlantDetailActivity", "No image available")
-        }
-
-        if (datosClima != null) {
-            climateCard.visibility = View.VISIBLE
-            noClimateData.visibility = View.GONE
-            temperature.text = "Temperatura: ${datosClima["temperature"] ?: "No disponible"} °C"
-            humidity.text = "Humedad: ${datosClima["humidity"] ?: "No disponible"} %"
-            Log.d("PlantDetailActivity", "Climate data displayed: $datosClima")
-        } else {
-            climateCard.visibility = View.GONE
-            noClimateData.visibility = View.VISIBLE
-            Log.d("PlantDetailActivity", "No climate data available")
-        }
-    }
-
-    private fun showError(message: String) {
-        errorMessage.text = message
-        errorMessage.visibility = View.VISIBLE
-        notFoundMessage.visibility = View.GONE
-        planta_card.visibility = View.GONE
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showNotFound() {
-        notFoundMessage.visibility = View.VISIBLE
-        errorMessage.visibility = View.GONE
-        planta_card.visibility = View.GONE
-        Toast.makeText(this, "Planta no encontrada", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun setLoading(isLoading: Boolean) {
-        loadingSpinner.visibility = if (isLoading) View.VISIBLE else View.GONE
-        planta_card.visibility = if (isLoading) View.GONE else View.VISIBLE
-        errorMessage.visibility = View.GONE
-        notFoundMessage.visibility = View.GONE
-    }
+            override fun onFailure(call: Call<OpenMeteoResponse>, t: Throwable) {
+                Toast.makeText(context, "Error de conexión: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                callback(null)
+            }
+        })
 }
